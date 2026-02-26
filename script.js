@@ -3,6 +3,7 @@ const statusText = document.getElementById("status");
 
 let board = ["","","","","","","","",""];
 let gameActive = true;
+let playerTurn = true; // 🔒 kunci giliran
 
 const PLAYER = "X";
 const AI = "O";
@@ -22,8 +23,10 @@ function playerMove(e) {
   e.preventDefault();
   const index = e.target.dataset.index;
 
-  if (!gameActive || board[index] !== "") return;
+  // ❌ blok spam
+  if (!gameActive || !playerTurn || board[index] !== "") return;
 
+  playerTurn = false; // 🔒 kunci input
   makeMove(index, PLAYER);
 
   if (checkWin(PLAYER)) {
@@ -40,7 +43,7 @@ function playerMove(e) {
   }
 
   statusText.textContent = "AI mikir...";
-  setTimeout(aiMove, 500);
+  setTimeout(aiMove, 600);
 }
 
 function aiMove() {
@@ -62,6 +65,7 @@ function aiMove() {
     return;
   }
 
+  playerTurn = true; // 🔓 buka input
   statusText.textContent = "Giliran lu (X)";
 }
 
@@ -125,6 +129,7 @@ function findBestMove() {
 function resetGame() {
   board = ["","","","","","","","",""];
   gameActive = true;
+  playerTurn = true;
   statusText.textContent = "Giliran lu (X)";
   cells.forEach(cell => {
     cell.textContent = "";
@@ -132,7 +137,7 @@ function resetGame() {
   });
 }
 
-/* ===== PARTICLE FUNCTION ===== */
+/* ===== PARTICLE ===== */
 function spawnParticles(color) {
   for (let i = 0; i < 50; i++) {
     const p = document.createElement("div");
