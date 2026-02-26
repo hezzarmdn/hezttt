@@ -1,14 +1,14 @@
-const cells = document.querySelectorAll(".cell");
+const boardEl = document.getElementById("board");
 const statusText = document.getElementById("status");
-const resetBtn = document.getElementById("resetBtn");
-const diffButtons = document.querySelectorAll(".diff");
+const resetBtn = document.getElementById("reset");
+const diffBtns = document.querySelectorAll(".difficulty button");
 
 let board, gameActive, playerTurn, difficulty;
 
 const PLAYER = "X";
 const AI = "O";
 
-const wins = [
+const winPatterns = [
   [0,1,2],[3,4,5],[6,7,8],
   [0,3,6],[1,4,7],[2,5,8],
   [0,4,8],[2,4,6]
@@ -21,48 +21,41 @@ function init() {
   board = Array(9).fill("");
   gameActive = true;
   playerTurn = true;
-  difficulty = "easy";
   statusText.textContent = "Giliran kamu (X)";
-  cells.forEach(c => {
-    c.textContent = "";
-    c.className = "cell";
+  renderBoard();
+}
+
+/* ===== RENDER BOARD ===== */
+function renderBoard() {
+  boardEl.innerHTML = "";
+  board.forEach((_, i) => {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.onclick = () => handleMove(i);
+    boardEl.appendChild(cell);
   });
 }
 
-/* ===== DIFFICULTY ===== */
-diffButtons.forEach(btn => {
-  btn.onclick = () => {
-    diffButtons.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    difficulty = btn.dataset.diff;
-    init();
-  };
-});
+/* ===== HANDLE MOVE ===== */
+function handleMove(i) {
+  if (!gameActive || !playerTurn || board[i]) return;
 
-/* ===== PLAYER MOVE ===== */
-cells.forEach(cell => {
-  cell.onclick = () => {
-    const i = cell.dataset.index;
-    if (!gameActive || !playerTurn || board[i]) return;
+  place(i, PLAYER);
+  if (endCheck(PLAYER, "Kamu menang 🎉", "#22c55e")) return;
 
-    place(i, PLAYER);
-
-    if (checkEnd(PLAYER, "Kamu menang 🎉", "#22c55e")) return;
-
-    playerTurn = false;
-    statusText.textContent = "AI sedang berpikir...";
-    setTimeout(aiMove, 500);
-  };
-});
+  playerTurn = false;
+  statusText.textContent = "AI sedang berpikir...";
+  setTimeout(aiMove, 500);
+}
 
 /* ===== AI MOVE ===== */
 function aiMove() {
   if (!gameActive) return;
 
-  const move = difficulty === "easy" ? randomMove() : smartMove();
+  const move = difficulty === "hard" ? smartMove() : randomMove();
   place(move, AI);
 
-  if (checkEnd(AI, "Kamu kalah 💀", "#f43f5e")) return;
+  if (endCheck(AI, "Kamu kalah 💀", "#f43f5e")) return;
 
   playerTurn = true;
   statusText.textContent = "Giliran kamu (X)";
@@ -71,33 +64,32 @@ function aiMove() {
 /* ===== PLACE ===== */
 function place(i, p) {
   board[i] = p;
-  cells[i].textContent = p;
-  cells[i].classList.add(p === PLAYER ? "x" : "o");
+  const cell = boardEl.children[i];
+  cell.textContent = p;
+  cell.classList.add(p === PLAYER ? "x" : "o");
 }
 
-/* ===== CHECK END ===== */
-function checkEnd(p, text, color) {
+/* ===== END CHECK ===== */
+function endCheck(p, text, color) {
   if (checkWin(p)) {
-    endGame(text, color);
+    finish(text, color);
     return true;
   }
   if (board.every(v => v)) {
-    endGame("Seri 🤝", "#38bdf8");
+    finish("Seri 🤝", "#38bdf8");
     return true;
   }
   return false;
 }
 
 function checkWin(p) {
-  return wins.some(w =>
-    w.every(i => board[i] === p && cells[i].classList.add("win"))
-  );
+  return winPatterns.some(pat => pat.every(i => board[i] === p));
 }
 
 /* ===== AI LOGIC ===== */
 function randomMove() {
   return board.map((v,i)=>v?null:i).filter(v=>v!==null)
-    .sort(()=>Math.random()-0.5)[0];
+    [Math.floor(Math.random()*board.filter(v=>!v).length)];
 }
 
 function smartMove() {
@@ -111,8 +103,8 @@ function smartMove() {
   return randomMove();
 }
 
-/* ===== END GAME ===== */
-function endGame(text, color) {
+/* ===== FINISH ===== */
+function finish(text, color) {
   gameActive = false;
   playerTurn = false;
   statusText.textContent = text;
@@ -122,17 +114,28 @@ function endGame(text, color) {
 /* ===== RESET ===== */
 resetBtn.onclick = init;
 
-/* ===== PARTICLE ===== */
+/* ===== DIFFICULTY ===== */
+difficulty = "easy";
+diffBtns.forEach(btn => {
+  btn.onclick = () => {
+    diffBtns.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    difficulty = btn.dataset.diff;
+    init();
+  };
+});
+
+/* ===== PARTICLES ===== */
 function spawnParticles(color) {
   for (let i=0;i<60;i++){
-    const p=document.createElement("div");
-    p.className="particle";
-    p.style.background=color;
-    p.style.left="50%";
-    p.style.top="50%";
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.style.background = color;
+    p.style.left = "50%";
+    p.style.top = "50%";
     p.style.setProperty("--x",(Math.random()-0.5)*500+"px");
     p.style.setProperty("--y",(Math.random()-0.5)*500+"px");
     document.body.appendChild(p);
-    setTimeout(()=>p.remove(),1000);
+    setTimeout(()=>p.remove(),900);
   }
 }
