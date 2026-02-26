@@ -1,0 +1,84 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  text-align: center;
+  font-family: Arial, sans-serif;
+  margin-top: 40px;
+  background: #fafafa;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 90vw;
+  max-width: 320px;
+  margin: 20px auto;
+}
+
+.cell {
+  aspect-ratio: 1 / 1;
+  background: #f1f1f1;
+  font-size: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  user-select: none;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.cell:active {
+  transform: scale(0.95);
+}
+
+/* animasi muncul */
+.cell.pop {
+  animation: pop 0.25s ease-out;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* warna */
+.cell.x {
+  color: #3b82f6;
+}
+
+.cell.o {
+  color: #ef4444;
+}
+
+/* animasi menang */
+.cell.win {
+  background: #d1fae5;
+  animation: glow 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 6px rgba(16,185,129,0.3);
+  }
+  to {
+    box-shadow: 0 0 14px rgba(16,185,129,0.6);
+  }
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+}
