@@ -1,9 +1,10 @@
 const cells = document.querySelectorAll(".cell");
 const statusText = document.getElementById("status");
+const difficultySelect = document.getElementById("difficulty");
 
 let board = ["","","","","","","","",""];
 let gameActive = true;
-let playerTurn = true; // 🔒 kunci giliran
+let playerTurn = true;
 
 const PLAYER = "X";
 const AI = "O";
@@ -23,14 +24,13 @@ function playerMove(e) {
   e.preventDefault();
   const index = e.target.dataset.index;
 
-  // ❌ blok spam
   if (!gameActive || !playerTurn || board[index] !== "") return;
 
-  playerTurn = false; // 🔒 kunci input
+  playerTurn = false;
   makeMove(index, PLAYER);
 
   if (checkWin(PLAYER)) {
-    statusText.textContent = "LU MENANG 🎉";
+    statusText.textContent = "KAMU MENANG 🎉";
     gameActive = false;
     spawnParticles("limegreen");
     return;
@@ -49,11 +49,13 @@ function playerMove(e) {
 function aiMove() {
   if (!gameActive) return;
 
-  const move = findBestMove();
+  const difficulty = difficultySelect.value;
+  const move = difficulty === "easy" ? randomMove() : bestMove();
+
   makeMove(move, AI);
 
   if (checkWin(AI)) {
-    statusText.textContent = "LU KALAH 💀";
+    statusText.textContent = "KAMU KALAH (CUPU DEK)💀";
     gameActive = false;
     spawnParticles("red");
     return;
@@ -65,8 +67,8 @@ function aiMove() {
     return;
   }
 
-  playerTurn = true; // 🔓 buka input
-  statusText.textContent = "Giliran lu (X)";
+  playerTurn = true;
+  statusText.textContent = "Giliran Kamu (X)";
 }
 
 function makeMove(index, player) {
@@ -93,7 +95,17 @@ function isDraw() {
   return board.every(cell => cell !== "");
 }
 
-function findBestMove() {
+/* ===== EASY MODE ===== */
+function randomMove() {
+  const empty = board
+    .map((v, i) => v === "" ? i : null)
+    .filter(v => v !== null);
+
+  return empty[Math.floor(Math.random() * empty.length)];
+}
+
+/* ===== HARD MODE (MENANG > BLOK > STRATEGI) ===== */
+function bestMove() {
   // menang
   for (let i = 0; i < 9; i++) {
     if (board[i] === "") {
@@ -118,19 +130,22 @@ function findBestMove() {
     }
   }
 
-  // random
-  const empty = board
-    .map((v, i) => v === "" ? i : null)
-    .filter(v => v !== null);
+  // ambil tengah
+  if (board[4] === "") return 4;
 
-  return empty[Math.floor(Math.random() * empty.length)];
+  // ambil sudut
+  const corners = [0,2,6,8].filter(i => board[i] === "");
+  if (corners.length) return corners[Math.floor(Math.random() * corners.length)];
+
+  // fallback
+  return randomMove();
 }
 
 function resetGame() {
   board = ["","","","","","","","",""];
   gameActive = true;
   playerTurn = true;
-  statusText.textContent = "Giliran lu (X)";
+  statusText.textContent = "Giliran Kamu (X)";
   cells.forEach(cell => {
     cell.textContent = "";
     cell.className = "cell";
