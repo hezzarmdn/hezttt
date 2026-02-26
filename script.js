@@ -131,3 +131,26 @@ function resetGame() {
     cell.className = "cell";
   });
 }
+
+function spawnParticles(color) {
+  const amount = 40;
+
+  for (let i = 0; i < amount; i++) {
+    const particle = document.createElement("div");
+    particle.className = "particle";
+    particle.style.background = color;
+
+    const x = (Math.random() - 0.5) * 300 + "px";
+    const y = (Math.random() - 0.5) * 300 + "px";
+
+    particle.style.setProperty("--x", x);
+    particle.style.setProperty("--y", y);
+
+    particle.style.left = "50%";
+    particle.style.top = "45%";
+
+    document.body.appendChild(particle);
+
+    setTimeout(() => particle.remove(), 1000);
+  }
+}
