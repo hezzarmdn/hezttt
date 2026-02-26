@@ -1,9 +1,12 @@
 const boardEl = document.getElementById("board");
 const statusText = document.getElementById("status");
 const resetBtn = document.getElementById("reset");
-const diffBtns = document.querySelectorAll(".difficulty button");
+const diffBtns = document.querySelectorAll(".diff");
 
-let board, gameActive, playerTurn, difficulty;
+let board = [];
+let gameActive = true;
+let playerTurn = true;
+let difficulty = "easy";
 
 const PLAYER = "X";
 const AI = "O";
@@ -25,7 +28,7 @@ function init() {
   renderBoard();
 }
 
-/* ===== RENDER BOARD ===== */
+/* ===== RENDER ===== */
 function renderBoard() {
   boardEl.innerHTML = "";
   board.forEach((_, i) => {
@@ -36,12 +39,13 @@ function renderBoard() {
   });
 }
 
-/* ===== HANDLE MOVE ===== */
+/* ===== PLAYER MOVE ===== */
 function handleMove(i) {
   if (!gameActive || !playerTurn || board[i]) return;
 
   place(i, PLAYER);
-  if (endCheck(PLAYER, "Kamu menang 🎉", "#22c55e")) return;
+
+  if (checkEnd(PLAYER)) return;
 
   playerTurn = false;
   statusText.textContent = "AI sedang berpikir...";
@@ -55,7 +59,7 @@ function aiMove() {
   const move = difficulty === "hard" ? smartMove() : randomMove();
   place(move, AI);
 
-  if (endCheck(AI, "Kamu kalah 💀", "#f43f5e")) return;
+  if (checkEnd(AI)) return;
 
   playerTurn = true;
   statusText.textContent = "Giliran kamu (X)";
@@ -69,12 +73,14 @@ function place(i, p) {
   cell.classList.add(p === PLAYER ? "x" : "o");
 }
 
-/* ===== END CHECK ===== */
-function endCheck(p, text, color) {
-  if (checkWin(p)) {
-    finish(text, color);
+/* ===== CHECK END ===== */
+function checkEnd(player) {
+  const winLine = getWinLine(player);
+  if (winLine) {
+    endGame(player, winLine);
     return true;
   }
+
   if (board.every(v => v)) {
     finish("Seri 🤝", "#38bdf8");
     return true;
@@ -82,40 +88,59 @@ function endCheck(p, text, color) {
   return false;
 }
 
-function checkWin(p) {
-  return winPatterns.some(pat => pat.every(i => board[i] === p));
+function getWinLine(player) {
+  for (let pattern of winPatterns) {
+    if (pattern.every(i => board[i] === player)) {
+      return pattern;
+    }
+  }
+  return null;
+}
+
+/* ===== END GAME ===== */
+function endGame(player, line) {
+  gameActive = false;
+  playerTurn = false;
+
+  line.forEach(i => {
+    boardEl.children[i].classList.add(
+      player === PLAYER ? "win-x" : "win-o"
+    );
+  });
+
+  if (player === PLAYER) {
+    finish("Kamu menang 🎉", "#22c55e");
+  } else {
+    finish("Kamu kalah 💀", "#f43f5e");
+  }
+}
+
+function finish(text, color) {
+  statusText.textContent = text;
+  spawnParticles(color);
 }
 
 /* ===== AI LOGIC ===== */
 function randomMove() {
-  return board.map((v,i)=>v?null:i).filter(v=>v!==null)
-    [Math.floor(Math.random()*board.filter(v=>!v).length)];
+  const empty = board.map((v,i)=>v?null:i).filter(v=>v!==null);
+  return empty[Math.floor(Math.random()*empty.length)];
 }
 
 function smartMove() {
   for (let i=0;i<9;i++){
-    if(!board[i]){board[i]=AI;if(checkWin(AI)){board[i]="";return i;}board[i]="";}
+    if(!board[i]){ board[i]=AI; if(getWinLine(AI)){ board[i]=""; return i; } board[i]=""; }
   }
   for (let i=0;i<9;i++){
-    if(!board[i]){board[i]=PLAYER;if(checkWin(PLAYER)){board[i]="";return i;}board[i]="";}
+    if(!board[i]){ board[i]=PLAYER; if(getWinLine(PLAYER)){ board[i]=""; return i; } board[i]=""; }
   }
   if(!board[4]) return 4;
   return randomMove();
-}
-
-/* ===== FINISH ===== */
-function finish(text, color) {
-  gameActive = false;
-  playerTurn = false;
-  statusText.textContent = text;
-  spawnParticles(color);
 }
 
 /* ===== RESET ===== */
 resetBtn.onclick = init;
 
 /* ===== DIFFICULTY ===== */
-difficulty = "easy";
 diffBtns.forEach(btn => {
   btn.onclick = () => {
     diffBtns.forEach(b=>b.classList.remove("active"));
