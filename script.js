@@ -1,11 +1,9 @@
 const cells = document.querySelectorAll(".cell");
 const statusText = document.getElementById("status");
+const resetBtn = document.getElementById("resetBtn");
 const diffButtons = document.querySelectorAll(".diff");
 
-let board = Array(9).fill("");
-let gameActive = true;
-let playerTurn = true;
-let difficulty = "easy";
+let board, gameActive, playerTurn, difficulty;
 
 const PLAYER = "X";
 const AI = "O";
@@ -16,110 +14,115 @@ const wins = [
   [0,4,8],[2,4,6]
 ];
 
+init();
+
+/* ===== INIT ===== */
+function init() {
+  board = Array(9).fill("");
+  gameActive = true;
+  playerTurn = true;
+  difficulty = "easy";
+  statusText.textContent = "Giliran kamu (X)";
+  cells.forEach(c => {
+    c.textContent = "";
+    c.className = "cell";
+  });
+}
+
+/* ===== DIFFICULTY ===== */
 diffButtons.forEach(btn => {
   btn.onclick = () => {
     diffButtons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     difficulty = btn.dataset.diff;
-    resetGame();
+    init();
   };
 });
 
-cells.forEach(c => {
-  c.addEventListener("touchstart", playerMove);
-  c.addEventListener("click", playerMove);
+/* ===== PLAYER MOVE ===== */
+cells.forEach(cell => {
+  cell.onclick = () => {
+    const i = cell.dataset.index;
+    if (!gameActive || !playerTurn || board[i]) return;
+
+    place(i, PLAYER);
+
+    if (checkEnd(PLAYER, "Kamu menang 🎉", "#22c55e")) return;
+
+    playerTurn = false;
+    statusText.textContent = "AI sedang berpikir...";
+    setTimeout(aiMove, 500);
+  };
 });
 
-function playerMove(e) {
-  e.preventDefault();
-  const i = e.target.dataset.index;
-  if (!gameActive || !playerTurn || board[i]) return;
-
-  playerTurn = false;
-  place(i, PLAYER);
-
-  if (checkWin(PLAYER)) {
-    endGame("Kamu menang 🎉", "#22c55e");
-    return;
-  }
-
-  if (isDraw()) {
-    endGame("Seri 🤝", "#38bdf8");
-    return;
-  }
-
-  statusText.textContent = "AI sedang berpikir...";
-  setTimeout(aiMove, 600);
-}
-
+/* ===== AI MOVE ===== */
 function aiMove() {
+  if (!gameActive) return;
+
   const move = difficulty === "easy" ? randomMove() : smartMove();
   place(move, AI);
 
-  if (checkWin(AI)) {
-    endGame("Kamu kalah 💀", "#f43f5e");
-    return;
-  }
-
-  if (isDraw()) {
-    endGame("Seri 🤝", "#38bdf8");
-    return;
-  }
+  if (checkEnd(AI, "Kamu kalah 💀", "#f43f5e")) return;
 
   playerTurn = true;
   statusText.textContent = "Giliran kamu (X)";
 }
 
+/* ===== PLACE ===== */
 function place(i, p) {
   board[i] = p;
   cells[i].textContent = p;
-  cells[i].classList.add("pop", p === PLAYER ? "x" : "o");
+  cells[i].classList.add(p === PLAYER ? "x" : "o");
 }
 
-function checkWin(p) {
-  for (let w of wins) {
-    if (w.every(i => board[i] === p)) {
-      w.forEach(i => cells[i].classList.add("win"));
-      return true;
-    }
+/* ===== CHECK END ===== */
+function checkEnd(p, text, color) {
+  if (checkWin(p)) {
+    endGame(text, color);
+    return true;
+  }
+  if (board.every(v => v)) {
+    endGame("Seri 🤝", "#38bdf8");
+    return true;
   }
   return false;
 }
 
-function isDraw() {
-  return board.every(v => v);
+function checkWin(p) {
+  return wins.some(w =>
+    w.every(i => board[i] === p && cells[i].classList.add("win"))
+  );
 }
 
+/* ===== AI LOGIC ===== */
 function randomMove() {
-  const e = board.map((v,i)=>v?null:i).filter(v=>v!==null);
-  return e[Math.floor(Math.random()*e.length)];
+  return board.map((v,i)=>v?null:i).filter(v=>v!==null)
+    .sort(()=>Math.random()-0.5)[0];
 }
 
 function smartMove() {
   for (let i=0;i<9;i++){
-    if(!board[i]){ board[i]=AI; if(checkWin(AI)){board[i]=""; return i;} board[i]=""; }
+    if(!board[i]){board[i]=AI;if(checkWin(AI)){board[i]="";return i;}board[i]="";}
   }
   for (let i=0;i<9;i++){
-    if(!board[i]){ board[i]=PLAYER; if(checkWin(PLAYER)){board[i]=""; return i;} board[i]=""; }
+    if(!board[i]){board[i]=PLAYER;if(checkWin(PLAYER)){board[i]="";return i;}board[i]="";}
   }
   if(!board[4]) return 4;
   return randomMove();
 }
 
+/* ===== END GAME ===== */
 function endGame(text, color) {
-  statusText.textContent = text;
   gameActive = false;
+  playerTurn = false;
+  statusText.textContent = text;
   spawnParticles(color);
 }
 
-function resetGame() {
-  board.fill("");
-  gameActive = true;
-  playerTurn = true;
-  statusText.textContent = "Giliran kamu (X)";
-  cells.forEach(c => c.className="cell", c.textContent="");
-}
+/* ===== RESET ===== */
+resetBtn.onclick = init;
 
+/* ===== PARTICLE ===== */
 function spawnParticles(color) {
   for (let i=0;i<60;i++){
     const p=document.createElement("div");
