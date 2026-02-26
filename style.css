@@ -82,3 +82,20 @@ button {
   background: #3b82f6;
   color: white;
 }
+
+h2 {
+  font-weight: 800;        /* judul tebel */
+  letter-spacing: 0.5px;
+}
+
+#status {
+  font-weight: 700;        /* status bold */
+  font-size: 16px;
+  margin-top: 6px;
+}
+
+/* X dan O lebih tegas */
+.cell.x,
+.cell.o {
+  font-weight: 800;
+}
