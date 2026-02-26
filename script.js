@@ -27,9 +27,10 @@ function playerMove(e) {
   makeMove(index, PLAYER);
 
   if (checkWin(PLAYER)) {
-    statusText.textContent = "KAMU MENANG 🎉";
-    gameActive = false;
-    return;
+  statusText.textContent = "LU MENANG 🎉";
+  gameActive = false;
+  spawnParticles("#22c55e"); // hijau
+  return;
   }
 
   if (isDraw()) {
@@ -49,9 +50,10 @@ function aiMove() {
   makeMove(move, AI);
 
   if (checkWin(AI)) {
-    statusText.textContent = "AI MENANG 🤖";
-    gameActive = false;
-    return;
+  statusText.textContent = "LU KALAH 💀";
+  gameActive = false;
+  spawnParticles("#ef4444"); // merah
+  return;
   }
 
   if (isDraw()) {
