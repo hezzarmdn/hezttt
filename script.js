@@ -1,124 +1,154 @@
-* {
-  box-sizing: border-box;
-}
+const cells = document.querySelectorAll(".cell");
+const statusText = document.getElementById("status");
 
-body {
-  text-align: center;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  margin-top: 40px;
-  background: #fafafa;
-}
+let board = ["","","","","","","","",""];
+let gameActive = true;
 
-/* Judul */
-h2 {
-  font-weight: 800;
-  letter-spacing: 0.5px;
-}
+const PLAYER = "X";
+const AI = "O";
 
-/* Status */
-#status {
-  font-weight: 700;
-  font-size: 16px;
-  margin-top: 6px;
-}
+const winPatterns = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+];
 
-/* Board */
-.board {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  width: 90vw;
-  max-width: 320px;
-  margin: 20px auto;
-}
+cells.forEach(cell => {
+  cell.addEventListener("touchstart", playerMove);
+  cell.addEventListener("click", playerMove);
+});
 
-/* Cell */
-.cell {
-  aspect-ratio: 1 / 1;
-  background: #f1f1f1;
-  font-size: 64px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-  user-select: none;
-  transition: transform 0.15s ease, background 0.2s ease;
-}
+function playerMove(e) {
+  e.preventDefault();
+  const index = e.target.dataset.index;
 
-.cell:active {
-  transform: scale(0.95);
-}
+  if (!gameActive || board[index] !== "") return;
 
-/* Animasi muncul */
-.cell.pop {
-  animation: pop 0.25s ease-out;
-}
+  makeMove(index, PLAYER);
 
-@keyframes pop {
-  0% {
-    transform: scale(0.6);
-    opacity: 0;
+  if (checkWin(PLAYER)) {
+    statusText.textContent = "LU MENANG 🎉";
+    gameActive = false;
+    spawnParticles("limegreen");
+    return;
   }
-  100% {
-    transform: scale(1);
-    opacity: 1;
+
+  if (isDraw()) {
+    statusText.textContent = "SERI 🤝";
+    gameActive = false;
+    return;
   }
+
+  statusText.textContent = "AI mikir...";
+  setTimeout(aiMove, 500);
 }
 
-/* Warna */
-.cell.x {
-  color: #3b82f6;
-}
+function aiMove() {
+  if (!gameActive) return;
 
-.cell.o {
-  color: #ef4444;
-}
+  const move = findBestMove();
+  makeMove(move, AI);
 
-/* Menang glow */
-.cell.win {
-  background: #d1fae5;
-  animation: glow 0.6s ease-in-out infinite alternate;
-}
-
-@keyframes glow {
-  from {
-    box-shadow: 0 0 6px rgba(16,185,129,0.3);
+  if (checkWin(AI)) {
+    statusText.textContent = "LU KALAH 💀";
+    gameActive = false;
+    spawnParticles("red");
+    return;
   }
-  to {
-    box-shadow: 0 0 14px rgba(16,185,129,0.6);
+
+  if (isDraw()) {
+    statusText.textContent = "SERI 🤝";
+    gameActive = false;
+    return;
   }
+
+  statusText.textContent = "Giliran lu (X)";
 }
 
-/* Tombol */
-button {
-  padding: 10px 22px;
-  font-size: 16px;
-  font-weight: 700;
-  border-radius: 12px;
-  border: none;
-  background: #3b82f6;
-  color: white;
+function makeMove(index, player) {
+  board[index] = player;
+  cells[index].textContent = player;
+  cells[index].classList.add("pop", player === PLAYER ? "x" : "o");
+
+  setTimeout(() => {
+    cells[index].classList.remove("pop");
+  }, 300);
 }
 
-/* ===== PARTICLE EFFECT ===== */
-.particle {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  animation: explode 1s ease-out forwards;
-}
-
-@keyframes explode {
-  from {
-    transform: translate(0, 0) scale(1);
-    opacity: 1;
+function checkWin(player) {
+  for (let pattern of winPatterns) {
+    if (pattern.every(i => board[i] === player)) {
+      pattern.forEach(i => cells[i].classList.add("win"));
+      return true;
+    }
   }
-  to {
-    transform: translate(var(--x), var(--y)) scale(0);
-    opacity: 0;
+  return false;
+}
+
+function isDraw() {
+  return board.every(cell => cell !== "");
+}
+
+function findBestMove() {
+  // menang
+  for (let i = 0; i < 9; i++) {
+    if (board[i] === "") {
+      board[i] = AI;
+      if (checkWin(AI)) {
+        board[i] = "";
+        return i;
+      }
+      board[i] = "";
+    }
+  }
+
+  // blok
+  for (let i = 0; i < 9; i++) {
+    if (board[i] === "") {
+      board[i] = PLAYER;
+      if (checkWin(PLAYER)) {
+        board[i] = "";
+        return i;
+      }
+      board[i] = "";
+    }
+  }
+
+  // random
+  const empty = board
+    .map((v, i) => v === "" ? i : null)
+    .filter(v => v !== null);
+
+  return empty[Math.floor(Math.random() * empty.length)];
+}
+
+function resetGame() {
+  board = ["","","","","","","","",""];
+  gameActive = true;
+  statusText.textContent = "Giliran lu (X)";
+  cells.forEach(cell => {
+    cell.textContent = "";
+    cell.className = "cell";
+  });
+}
+
+/* ===== PARTICLE FUNCTION ===== */
+function spawnParticles(color) {
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.style.backgroundColor = color;
+
+    const x = (Math.random() - 0.5) * 400 + "px";
+    const y = (Math.random() - 0.5) * 400 + "px";
+
+    p.style.setProperty("--x", x);
+    p.style.setProperty("--y", y);
+
+    p.style.left = "50%";
+    p.style.top = "50%";
+
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1000);
   }
 }
