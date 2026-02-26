@@ -15,7 +15,7 @@ h2 {
   letter-spacing: 0.5px;
 }
 
-/* Status game */
+/* Status */
 #status {
   font-weight: 700;
   font-size: 16px;
@@ -46,7 +46,6 @@ h2 {
   transition: transform 0.15s ease, background 0.2s ease;
 }
 
-/* Efek tap */
 .cell:active {
   transform: scale(0.95);
 }
@@ -67,16 +66,16 @@ h2 {
   }
 }
 
-/* Warna X dan O */
+/* Warna */
 .cell.x {
-  color: #3b82f6; /* biru */
+  color: #3b82f6;
 }
 
 .cell.o {
-  color: #ef4444; /* merah */
+  color: #ef4444;
 }
 
-/* Animasi menang */
+/* Menang glow */
 .cell.win {
   background: #d1fae5;
   animation: glow 0.6s ease-in-out infinite alternate;
@@ -100,32 +99,25 @@ button {
   border: none;
   background: #3b82f6;
   color: white;
-  cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-button:active {
-  transform: scale(0.95);
-  opacity: 0.9;
 }
 
 /* ===== PARTICLE EFFECT ===== */
 .particle {
   position: fixed;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   pointer-events: none;
-  animation: explode 900ms ease-out forwards;
-  z-index: 999;
+  z-index: 9999;
+  animation: explode 1s ease-out forwards;
 }
 
 @keyframes explode {
-  0% {
+  from {
     transform: translate(0, 0) scale(1);
     opacity: 1;
   }
-  100% {
+  to {
     transform: translate(var(--x), var(--y)) scale(0);
     opacity: 0;
   }
