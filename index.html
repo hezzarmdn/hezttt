@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tic Tac Toe vs AI</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tic Tac Toe Neon</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
-  <h2>Tic Tac Toe</h2>
+<div class="app">
+  <h1>Tic Tac Toe</h1>
 
-  <select id="difficulty">
-    <option value="easy">Mudah</option>
-    <option value="hard">Sulit</option>
-  </select>
+  <div class="difficulty">
+    <button class="diff active" data-diff="easy">Mudah</button>
+    <button class="diff" data-diff="hard">Sulit</button>
+  </div>
 
-  <p id="status">Giliran Kamu (X)</p>
+  <p id="status">Giliran kamu (X)</p>
 
   <div class="board">
     <div class="cell" data-index="0"></div>
@@ -29,8 +30,9 @@
     <div class="cell" data-index="8"></div>
   </div>
 
-  <button onclick="resetGame()">Reset</button>
+  <button class="reset" onclick="resetGame()">Reset Game</button>
+</div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
