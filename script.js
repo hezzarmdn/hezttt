@@ -1,90 +1,85 @@
 const cells = document.querySelectorAll(".cell");
 const statusText = document.getElementById("status");
-const difficultySelect = document.getElementById("difficulty");
+const diffButtons = document.querySelectorAll(".diff");
 
-let board = ["","","","","","","","",""];
+let board = Array(9).fill("");
 let gameActive = true;
 let playerTurn = true;
+let difficulty = "easy";
 
 const PLAYER = "X";
 const AI = "O";
 
-const winPatterns = [
+const wins = [
   [0,1,2],[3,4,5],[6,7,8],
   [0,3,6],[1,4,7],[2,5,8],
   [0,4,8],[2,4,6]
 ];
 
-cells.forEach(cell => {
-  cell.addEventListener("touchstart", playerMove);
-  cell.addEventListener("click", playerMove);
+diffButtons.forEach(btn => {
+  btn.onclick = () => {
+    diffButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    difficulty = btn.dataset.diff;
+    resetGame();
+  };
+});
+
+cells.forEach(c => {
+  c.addEventListener("touchstart", playerMove);
+  c.addEventListener("click", playerMove);
 });
 
 function playerMove(e) {
   e.preventDefault();
-  const index = e.target.dataset.index;
-
-  if (!gameActive || !playerTurn || board[index] !== "") return;
+  const i = e.target.dataset.index;
+  if (!gameActive || !playerTurn || board[i]) return;
 
   playerTurn = false;
-  makeMove(index, PLAYER);
+  place(i, PLAYER);
 
   if (checkWin(PLAYER)) {
-    statusText.textContent = "KAMU MENANG 🎉";
-    gameActive = false;
-    spawnParticles("limegreen");
+    endGame("Kamu menang 🎉", "#22c55e");
     return;
   }
 
   if (isDraw()) {
-    statusText.textContent = "SERI 🤝";
-    gameActive = false;
+    endGame("Seri 🤝", "#38bdf8");
     return;
   }
 
-  statusText.textContent = "AI mikir...";
+  statusText.textContent = "AI sedang berpikir...";
   setTimeout(aiMove, 600);
 }
 
 function aiMove() {
-  if (!gameActive) return;
-
-  const difficulty = difficultySelect.value;
-  const move = difficulty === "easy" ? randomMove() : bestMove();
-
-  makeMove(move, AI);
+  const move = difficulty === "easy" ? randomMove() : smartMove();
+  place(move, AI);
 
   if (checkWin(AI)) {
-    statusText.textContent = "KAMU KALAH (CUPU DEK)💀";
-    gameActive = false;
-    spawnParticles("red");
+    endGame("Kamu kalah 💀", "#f43f5e");
     return;
   }
 
   if (isDraw()) {
-    statusText.textContent = "SERI 🤝";
-    gameActive = false;
+    endGame("Seri 🤝", "#38bdf8");
     return;
   }
 
   playerTurn = true;
-  statusText.textContent = "Giliran Kamu (X)";
+  statusText.textContent = "Giliran kamu (X)";
 }
 
-function makeMove(index, player) {
-  board[index] = player;
-  cells[index].textContent = player;
-  cells[index].classList.add("pop", player === PLAYER ? "x" : "o");
-
-  setTimeout(() => {
-    cells[index].classList.remove("pop");
-  }, 300);
+function place(i, p) {
+  board[i] = p;
+  cells[i].textContent = p;
+  cells[i].classList.add("pop", p === PLAYER ? "x" : "o");
 }
 
-function checkWin(player) {
-  for (let pattern of winPatterns) {
-    if (pattern.every(i => board[i] === player)) {
-      pattern.forEach(i => cells[i].classList.add("win"));
+function checkWin(p) {
+  for (let w of wins) {
+    if (w.every(i => board[i] === p)) {
+      w.forEach(i => cells[i].classList.add("win"));
       return true;
     }
   }
@@ -92,83 +87,49 @@ function checkWin(player) {
 }
 
 function isDraw() {
-  return board.every(cell => cell !== "");
+  return board.every(v => v);
 }
 
-/* ===== EASY MODE ===== */
 function randomMove() {
-  const empty = board
-    .map((v, i) => v === "" ? i : null)
-    .filter(v => v !== null);
-
-  return empty[Math.floor(Math.random() * empty.length)];
+  const e = board.map((v,i)=>v?null:i).filter(v=>v!==null);
+  return e[Math.floor(Math.random()*e.length)];
 }
 
-/* ===== HARD MODE (MENANG > BLOK > STRATEGI) ===== */
-function bestMove() {
-  // menang
-  for (let i = 0; i < 9; i++) {
-    if (board[i] === "") {
-      board[i] = AI;
-      if (checkWin(AI)) {
-        board[i] = "";
-        return i;
-      }
-      board[i] = "";
-    }
+function smartMove() {
+  for (let i=0;i<9;i++){
+    if(!board[i]){ board[i]=AI; if(checkWin(AI)){board[i]=""; return i;} board[i]=""; }
   }
-
-  // blok
-  for (let i = 0; i < 9; i++) {
-    if (board[i] === "") {
-      board[i] = PLAYER;
-      if (checkWin(PLAYER)) {
-        board[i] = "";
-        return i;
-      }
-      board[i] = "";
-    }
+  for (let i=0;i<9;i++){
+    if(!board[i]){ board[i]=PLAYER; if(checkWin(PLAYER)){board[i]=""; return i;} board[i]=""; }
   }
-
-  // ambil tengah
-  if (board[4] === "") return 4;
-
-  // ambil sudut
-  const corners = [0,2,6,8].filter(i => board[i] === "");
-  if (corners.length) return corners[Math.floor(Math.random() * corners.length)];
-
-  // fallback
+  if(!board[4]) return 4;
   return randomMove();
 }
 
-function resetGame() {
-  board = ["","","","","","","","",""];
-  gameActive = true;
-  playerTurn = true;
-  statusText.textContent = "Giliran Kamu (X)";
-  cells.forEach(cell => {
-    cell.textContent = "";
-    cell.className = "cell";
-  });
+function endGame(text, color) {
+  statusText.textContent = text;
+  gameActive = false;
+  spawnParticles(color);
 }
 
-/* ===== PARTICLE ===== */
+function resetGame() {
+  board.fill("");
+  gameActive = true;
+  playerTurn = true;
+  statusText.textContent = "Giliran kamu (X)";
+  cells.forEach(c => c.className="cell", c.textContent="");
+}
+
 function spawnParticles(color) {
-  for (let i = 0; i < 50; i++) {
-    const p = document.createElement("div");
-    p.className = "particle";
-    p.style.backgroundColor = color;
-
-    const x = (Math.random() - 0.5) * 400 + "px";
-    const y = (Math.random() - 0.5) * 400 + "px";
-
-    p.style.setProperty("--x", x);
-    p.style.setProperty("--y", y);
-
-    p.style.left = "50%";
-    p.style.top = "50%";
-
+  for (let i=0;i<60;i++){
+    const p=document.createElement("div");
+    p.className="particle";
+    p.style.background=color;
+    p.style.left="50%";
+    p.style.top="50%";
+    p.style.setProperty("--x",(Math.random()-0.5)*500+"px");
+    p.style.setProperty("--y",(Math.random()-0.5)*500+"px");
     document.body.appendChild(p);
-    setTimeout(() => p.remove(), 1000);
+    setTimeout(()=>p.remove(),1000);
   }
 }
