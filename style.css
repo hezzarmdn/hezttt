@@ -4,11 +4,25 @@
 
 body {
   text-align: center;
-  font-family: Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin-top: 40px;
   background: #fafafa;
 }
 
+/* Judul */
+h2 {
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+/* Status game */
+#status {
+  font-weight: 700;
+  font-size: 16px;
+  margin-top: 6px;
+}
+
+/* Board */
 .board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -18,10 +32,12 @@ body {
   margin: 20px auto;
 }
 
+/* Cell */
 .cell {
   aspect-ratio: 1 / 1;
   background: #f1f1f1;
   font-size: 64px;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,11 +46,12 @@ body {
   transition: transform 0.15s ease, background 0.2s ease;
 }
 
+/* Efek tap */
 .cell:active {
   transform: scale(0.95);
 }
 
-/* animasi muncul */
+/* Animasi muncul */
 .cell.pop {
   animation: pop 0.25s ease-out;
 }
@@ -50,16 +67,16 @@ body {
   }
 }
 
-/* warna */
+/* Warna X dan O */
 .cell.x {
-  color: #3b82f6;
+  color: #3b82f6; /* biru */
 }
 
 .cell.o {
-  color: #ef4444;
+  color: #ef4444; /* merah */
 }
 
-/* animasi menang */
+/* Animasi menang */
 .cell.win {
   background: #d1fae5;
   animation: glow 0.6s ease-in-out infinite alternate;
@@ -74,28 +91,20 @@ body {
   }
 }
 
+/* Tombol */
 button {
-  padding: 10px 20px;
+  padding: 10px 22px;
   font-size: 16px;
-  border-radius: 10px;
+  font-weight: 700;
+  border-radius: 12px;
   border: none;
   background: #3b82f6;
   color: white;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
-h2 {
-  font-weight: 800;        /* judul tebel */
-  letter-spacing: 0.5px;
-}
-
-#status {
-  font-weight: 700;        /* status bold */
-  font-size: 16px;
-  margin-top: 6px;
-}
-
-/* X dan O lebih tegas */
-.cell.x,
-.cell.o {
-  font-weight: 800;
+button:active {
+  transform: scale(0.95);
+  opacity: 0.9;
 }
