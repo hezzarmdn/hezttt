@@ -27,7 +27,7 @@ function playerMove(e) {
   makeMove(index, PLAYER);
 
   if (checkWin(PLAYER)) {
-    statusText.textContent = "LU MENANG 🎉";
+    statusText.textContent = "KAMU MENANG 🎉";
     gameActive = false;
     return;
   }
@@ -60,7 +60,7 @@ function aiMove() {
     return;
   }
 
-  statusText.textContent = "Giliran lu (X)";
+  statusText.textContent = "Giliran Kamu (X)";
 }
 
 function makeMove(index, player) {
@@ -125,7 +125,7 @@ function findBestMove() {
 function resetGame() {
   board = ["","","","","","","","",""];
   gameActive = true;
-  statusText.textContent = "Giliran lu (X)";
+  statusText.textContent = "Giliran Kamu (X)";
   cells.forEach(cell => {
     cell.textContent = "";
     cell.className = "cell";
