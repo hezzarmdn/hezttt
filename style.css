@@ -3,105 +3,134 @@
 }
 
 body {
-  text-align: center;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  margin-top: 40px;
-  background: #fafafa;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  font-family: system-ui, sans-serif;
+  color: white;
 }
 
-/* Judul */
-h2 {
+.app {
+  background: linear-gradient(180deg, #020617, #020617);
+  padding: 28px 24px 32px;
+  border-radius: 24px;
+  width: 92vw;
+  max-width: 360px;
+  box-shadow: 0 0 40px rgba(56,189,248,0.25);
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
   font-weight: 800;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  color: #38bdf8;
+}
+
+/* Difficulty */
+.difficulty {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.diff {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 14px;
+  border: 1px solid #1e293b;
+  background: #020617;
+  color: #94a3b8;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.diff.active {
+  background: linear-gradient(135deg, #22d3ee, #38bdf8);
+  color: #020617;
+  box-shadow: 0 0 16px rgba(56,189,248,0.7);
 }
 
 /* Status */
 #status {
-  font-weight: 700;
-  font-size: 16px;
-  margin-top: 6px;
+  margin: 10px 0 16px;
+  font-weight: 600;
+  color: #e5e7eb;
 }
 
 /* Board */
 .board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  width: 90vw;
-  max-width: 320px;
-  margin: 20px auto;
+  gap: 14px;
 }
 
-/* Cell */
 .cell {
   aspect-ratio: 1 / 1;
-  background: #f1f1f1;
+  background: linear-gradient(145deg, #020617, #020617);
+  border-radius: 18px;
   font-size: 64px;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 16px;
   user-select: none;
-  transition: transform 0.15s ease, background 0.2s ease;
+  cursor: pointer;
+  box-shadow:
+    inset 0 0 0 2px #020617,
+    0 0 0 1px #1e293b;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 .cell:active {
-  transform: scale(0.95);
+  transform: scale(0.92);
 }
 
-/* Animasi muncul */
+.cell.x {
+  color: #22d3ee;
+  text-shadow: 0 0 18px rgba(34,211,238,0.8);
+}
+
+.cell.o {
+  color: #f43f5e;
+  text-shadow: 0 0 18px rgba(244,63,94,0.8);
+}
+
 .cell.pop {
   animation: pop 0.25s ease-out;
 }
 
 @keyframes pop {
-  0% {
-    transform: scale(0.6);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-/* Warna */
-.cell.x {
-  color: #3b82f6;
-}
-
-.cell.o {
-  color: #ef4444;
-}
-
-/* Menang glow */
+/* Win glow */
 .cell.win {
-  background: #d1fae5;
-  animation: glow 0.6s ease-in-out infinite alternate;
+  box-shadow:
+    0 0 14px rgba(34,197,94,0.9),
+    inset 0 0 0 2px rgba(34,197,94,0.9);
 }
 
-@keyframes glow {
-  from {
-    box-shadow: 0 0 6px rgba(16,185,129,0.3);
-  }
-  to {
-    box-shadow: 0 0 14px rgba(16,185,129,0.6);
-  }
-}
-
-/* Tombol */
-button {
-  padding: 10px 22px;
-  font-size: 16px;
-  font-weight: 700;
-  border-radius: 12px;
+/* Reset */
+.reset {
+  margin-top: 18px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 16px;
   border: none;
-  background: #3b82f6;
-  color: white;
+  font-weight: 700;
+  background: linear-gradient(135deg, #38bdf8, #22d3ee);
+  color: #020617;
+  cursor: pointer;
 }
 
-/* ===== PARTICLE EFFECT ===== */
+/* Particle */
 .particle {
   position: fixed;
   width: 10px;
@@ -113,12 +142,6 @@ button {
 }
 
 @keyframes explode {
-  from {
-    transform: translate(0, 0) scale(1);
-    opacity: 1;
-  }
-  to {
-    transform: translate(var(--x), var(--y)) scale(0);
-    opacity: 0;
-  }
+  from { transform: translate(0,0) scale(1); opacity: 1; }
+  to { transform: translate(var(--x),var(--y)) scale(0); opacity: 0; }
 }
