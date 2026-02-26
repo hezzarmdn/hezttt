@@ -1,6 +1,4 @@
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -25,8 +23,8 @@ body {
 
 h1 {
   margin: 0;
-  color: #38bdf8;
   font-weight: 800;
+  color: #38bdf8;
 }
 
 /* difficulty */
@@ -36,7 +34,7 @@ h1 {
   margin: 16px 0;
 }
 
-.difficulty button {
+.diff {
   flex: 1;
   padding: 10px;
   border-radius: 14px;
@@ -47,7 +45,7 @@ h1 {
   cursor: pointer;
 }
 
-.difficulty button.active {
+.diff.active {
   background: linear-gradient(135deg, #22d3ee, #38bdf8);
   color: #020617;
 }
@@ -84,6 +82,7 @@ h1 {
   transform: scale(0.92);
 }
 
+/* symbol */
 .cell.x {
   color: #22d3ee;
   animation: pop 0.25s ease;
@@ -97,6 +96,21 @@ h1 {
 @keyframes pop {
   from { transform: scale(0.5); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+/* WIN EFFECT */
+.cell.win-x {
+  box-shadow:
+    0 0 16px rgba(34,197,94,1),
+    0 0 32px rgba(34,197,94,0.9),
+    inset 0 0 0 2px rgba(34,197,94,1);
+}
+
+.cell.win-o {
+  box-shadow:
+    0 0 16px rgba(239,68,68,1),
+    0 0 32px rgba(239,68,68,0.9),
+    inset 0 0 0 2px rgba(239,68,68,1);
 }
 
 /* reset */
